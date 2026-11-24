@@ -25,6 +25,33 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Hesap ve oturum
+
+Giriş ve kayıt işlemleri için Expo sunucusunu Node.js 24 ile çalıştır. Geliştirme hesapları sunucuda `.fitfuel/accounts.sqlite` dosyasına, öğün ve antrenman kayıtları ise ilgili hesap adına cihazda kaydedilir. Uygulamayı giriş eklenmeden önce kullandıysan bu cihazdaki eski günlük, ilk açılan hesaba aktarılır.
+
+### Şifre sıfırlama e-postası
+
+Resend’de bir gönderici alan adını doğrula ve gönderme yetkisi olan bir API anahtarı oluştur. Proje kökündeki `.env.local` dosyasına aşağıdaki değerleri ekle ve Expo sunucusunu yeniden başlat.
+
+```dotenv
+RESEND_API_KEY=your_resend_api_key
+FITFUEL_RESET_FROM_EMAIL=no-reply@your-verified-domain.example
+```
+
+Resend’in test göndericisi kullanılıyorsa yalnızca Resend hesabının e-posta adresine gönderim yapılabilir. [Resend e-posta gönderim rehberi](https://resend.com/docs/api-reference/emails/send-email)
+
+## Fotoğrafla öğün ekleme
+
+Yerel geliştirme için proje kökünde `.env.local` oluştur ve Google AI Studio’dan aldığın API anahtarını bu dosyaya ekle.
+
+```dotenv
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+Expo sunucusunu yeniden başlat. iPhone'da Expo Go ile denemek için `npx expo start --go`, tarayıcıda denemek için `npm run web` kullan. Kalori ekranında bir öğün fotoğrafı seçip **Fotoğrafı analiz et** düğmesine bas.
+
+API anahtarını sunucu ortamında sakla. Yerel geliştirmede Expo Router, `/meal-photo` isteklerini çalışmakta olan Expo sunucusuna yönlendirir. Yayına alınan mobil sürüm için API rotasını sunan bir HTTPS sunucusu ve Expo Router `origin` ayarı gerekir. Herkese açık dağıtımda ücretli analiz rotasını uygulamanın kullanıcı kimlik doğrulamasıyla koru.
+
 ## Get a fresh project
 
 When you're ready, run:

@@ -1,33 +1,37 @@
-import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { JournalProvider } from '@/components/journal';
-import { colors } from '@/components/fitness-ui';
+import { AuthProvider, useAuth } from '@/components/auth-session';
+import { Action, colors, Screen } from '@/components/fitness-ui';
 
-const tabs = [
-  { name: 'index', title: 'Bugün', icon: '⌂' },
-  { name: 'recipes', title: 'Tarifler', icon: '≡' },
-  { name: 'calories', title: 'Kalori', icon: '◉' },
-  { name: 'coach', title: 'Antrenman', icon: '↗' },
-];
+function AppRoutes() {
+  const { account, loading, loadError, retry } = useAuth();
+  if (loading || loadError) {
+    return (
+      <Screen label="FitFuel Life" title="FitFuel Life" subtitle={loading ? 'Oturum kontrol ediliyor…' : loadError}>
+        {loadError !== '' && <Action title="Tekrar dene" onPress={retry} />}
+      </Screen>
+    );
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+      <Stack.Protected guard={!account}>
+        <Stack.Screen name="sign-in" />
+        <Stack.Screen name="sign-up" />
+        <Stack.Screen name="forgot-password" />
+      </Stack.Protected>
+      <Stack.Protected guard={Boolean(account)}>
+        <Stack.Screen name="(tabs)" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
 
 export default function Layout() {
   return (
-    <JournalProvider>
+    <AuthProvider>
       <StatusBar style="light" />
-      <Tabs screenOptions={{
-        headerShown: false,
-        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.line },
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.muted,
-      }}>
-        {tabs.map(({ name, title, icon }) => (
-          <Tabs.Screen key={name} name={name} options={{
-            title,
-            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 23 }}>{icon}</Text>,
-          }} />
-        ))}
-      </Tabs>
-    </JournalProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }

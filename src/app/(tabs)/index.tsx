@@ -1,9 +1,14 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
+import { useAuth } from '@/components/auth-session';
 import { Action, Card, Copy, Heading, Screen } from '@/components/fitness-ui';
 import { dateKey, useJournal } from '@/components/journal';
 
 export default function Today() {
   const { journal, ready, error, reload } = useJournal();
+  const { account, signOut } = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState('');
   const today = dateKey();
   const calories = journal.meals.filter((meal) => meal.date === today).reduce((total, meal) => total + meal.calories, 0);
   const workouts = journal.workouts[today]?.length ?? 0;
@@ -25,6 +30,21 @@ export default function Today() {
         <Heading>Antrenman</Heading>
         {ready && <Copy>Bugün tamamlanan antrenman: {workouts}</Copy>}
         <Action secondary title="Programları aç" onPress={() => router.push('./coach')} />
+      </Card>
+      <Card>
+        <Heading>Hesabım</Heading>
+        <Copy>{account?.email}</Copy>
+        {signOutError !== '' && <Copy>{signOutError}</Copy>}
+        <Action secondary title={signingOut ? 'Oturum kapatılıyor…' : 'Çıkış yap'}
+          disabled={signingOut} onPress={async () => {
+            setSigningOut(true);
+            setSignOutError('');
+            const result = await signOut();
+            if (result) {
+              setSignOutError(result);
+              setSigningOut(false);
+            }
+          }} />
       </Card>
     </Screen>
   );

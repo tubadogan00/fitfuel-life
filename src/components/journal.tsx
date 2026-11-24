@@ -1,7 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useRef, useState, type PropsWithChildren } from 'react';
 
-type Meal = { id: string; date: string; name: string; calories: number };
+import type { MealFood } from '@/utils/meal-nutrition';
+
+type MealNutrition = { proteinGrams: number; foods: MealFood[] };
+type Meal = { id: string; date: string; name: string; calories: number } & Partial<MealNutrition>;
 type Journal = { goal: number | null; meals: Meal[]; workouts: Record<string, string[]> };
 type JournalContextValue = {
   journal: Journal;
@@ -11,15 +14,37 @@ type JournalContextValue = {
   update: (change: (current: Journal) => Journal) => void;
 };
 
-const key = 'fitness-journal-v1';
+const legacyKey = 'fitness-journal-v1';
+const legacyOwnerKey = 'fitness-journal-v1-owner';
 const initial: Journal = { goal: null, meals: [], workouts: {} };
 const JournalContext = createContext<JournalContextValue | null>(null);
+let pendingMigration = Promise.resolve();
+
+function loadJournal(key: string, accountId: string) {
+  const read = pendingMigration.then(async () => {
+    const saved = await AsyncStorage.getItem(key);
+    if (saved !== null) return saved;
+
+    const [legacy, owner] = await Promise.all([
+      AsyncStorage.getItem(legacyKey),
+      AsyncStorage.getItem(legacyOwnerKey),
+    ]);
+    if (legacy === null || (owner !== null && owner !== accountId)) return null;
+
+    await AsyncStorage.setItem(legacyOwnerKey, accountId);
+    await AsyncStorage.setItem(key, legacy);
+    return legacy;
+  });
+  pendingMigration = read.then(() => {}, () => {});
+  return read;
+}
 
 export function dateKey(date = new Date()) {
   return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
 }
 
-export function JournalProvider({ children }: PropsWithChildren) {
+export function JournalProvider({ children, accountId }: PropsWithChildren<{ accountId: string }>) {
+  const key = `fitness-journal-v2:${accountId}`;
   const [journal, setJournal] = useState(initial);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
@@ -29,7 +54,7 @@ export function JournalProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     let active = true;
-    AsyncStorage.getItem(key).then((raw) => {
+    loadJournal(key, accountId).then((raw) => {
       if (!active) return;
       current.current = raw ? JSON.parse(raw) as Journal : initial;
       setJournal(current.current);
@@ -39,7 +64,7 @@ export function JournalProvider({ children }: PropsWithChildren) {
       if (active) setError('Kayıtlar açılamadı.');
     });
     return () => { active = false; };
-  }, [attempt]);
+  }, [accountId, attempt, key]);
 
   function update(change: (value: Journal) => Journal) {
     if (!ready) return;
@@ -73,7 +98,7 @@ export function useJournal() {
   return context;
 }
 
-export function addMeal(journal: Journal, name: string, calories: number): Journal {
+export function addMeal(journal: Journal, name: string, calories: number, nutrition?: MealNutrition): Journal {
   const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  return { ...journal, meals: [...journal.meals, { id, date: dateKey(), name, calories }] };
+  return { ...journal, meals: [...journal.meals, { id, date: dateKey(), name, calories, ...nutrition }] };
 }
