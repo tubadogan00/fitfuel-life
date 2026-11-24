@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "sporcu-asistani",
-    "slug": "sporcu-asistani",
+    "name": "FitFuel Life",
+    "slug": "fitfuel-life",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

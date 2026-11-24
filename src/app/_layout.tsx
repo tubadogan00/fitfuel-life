@@ -1,18 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Tabs } from 'expo-router';
+import { Text } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { JournalProvider } from '@/components/journal';
+import { colors } from '@/components/fitness-ui';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+const tabs = [
+  { name: 'index', title: 'Bugün', icon: '⌂' },
+  { name: 'recipes', title: 'Tarifler', icon: '≡' },
+  { name: 'calories', title: 'Kalori', icon: '◉' },
+  { name: 'coach', title: 'Antrenman', icon: '↗' },
+];
 
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function Layout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <JournalProvider>
+      <StatusBar style="light" />
+      <Tabs screenOptions={{
+        headerShown: false,
+        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.line },
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.muted,
+      }}>
+        {tabs.map(({ name, title, icon }) => (
+          <Tabs.Screen key={name} name={name} options={{
+            title,
+            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 23 }}>{icon}</Text>,
+          }} />
+        ))}
+      </Tabs>
+    </JournalProvider>
   );
 }
