@@ -5,7 +5,7 @@ import { JournalProvider } from '@/components/journal';
 import { colors } from '@/components/fitness-ui';
 
 const tabs = [
-  { name: 'index', title: 'Bugün', icon: '⌂' },
+  { name: '(today)', title: 'Bugün', icon: '⌂' },
   { name: 'recipes', title: 'Tarifler', icon: '≡' },
   { name: 'calories', title: 'Kalori', icon: '◉' },
   { name: 'coach', title: 'Antrenman', icon: '↗' },

@@ -2,10 +2,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useRef, useState, type PropsWithChildren } from 'react';
 
 import type { MealFood } from '@/utils/meal-nutrition';
+import type { WeeklyPlan } from '@/utils/weekly-plan';
 
 type MealNutrition = { proteinGrams: number; foods: MealFood[] };
 type Meal = { id: string; date: string; name: string; calories: number } & Partial<MealNutrition>;
-type Journal = { goal: number | null; meals: Meal[]; workouts: Record<string, string[]> };
+type Journal = { goal: number | null; meals: Meal[]; workouts: Record<string, string[]>; weeklyPlan?: WeeklyPlan };
 type JournalContextValue = {
   journal: Journal;
   ready: boolean;

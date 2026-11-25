@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ExerciseAnimation } from '@/components/exercise-animation';
 import { Action, Card, Copy, Heading, Screen } from '@/components/fitness-ui';
 import { dateKey, useJournal } from '@/components/journal';
-import { workouts } from '@/constants/workouts';
+import { findWorkout } from '@/constants/workouts';
 
 function backToWorkouts() {
   if (router.canGoBack()) router.back();
@@ -15,7 +15,7 @@ export default function WorkoutDetail() {
   const { journal, ready, update, error, reload } = useJournal();
   const [playing, setPlaying] = useState<number | null>(null);
   const focused = useIsFocused();
-  const workout = [...workouts.home, ...workouts.gym].find((entry) => entry.id === id);
+  const workout = findWorkout(id);
 
   if (!workout) {
     return (

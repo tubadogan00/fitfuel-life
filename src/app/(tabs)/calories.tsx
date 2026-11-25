@@ -26,14 +26,6 @@ export default function Calories() {
     <Screen label="BESLENME" title="Kalori günlüğü" subtitle="Öğünlerini kaydet ve günlük toplamını gör.">
       {error && <Card><Copy>{error}</Copy><Action title="Tekrar dene" onPress={reload} /></Card>}
       <Card>
-        <Heading>Fotoğrafla öğün ekle</Heading>
-        <PhotoMeal ready={ready} onSave={(mealName, foods) => {
-          const { calories: estimatedCalories, proteinGrams } = mealTotals(foods);
-          update((current) => addMeal(current, mealName, estimatedCalories, { proteinGrams, foods }));
-          setOffset(0);
-        }} />
-      </Card>
-      <Card>
         <Heading>Günlük hedef</Heading>
         <Copy>{journal.goal ? `${journal.goal} kcal` : 'Henüz hedef belirlenmedi.'}</Copy>
         <Field label="Hedef (kcal)" value={goal} onChangeText={setGoal} keyboardType="number-pad" maxLength={6} />
@@ -45,6 +37,14 @@ export default function Calories() {
         {journal.goal !== null && (
           <Action secondary title="Hedefi kaldır" disabled={!ready} onPress={() => update((current) => ({ ...current, goal: null }))} />
         )}
+      </Card>
+      <Card>
+        <Heading>Fotoğrafla öğün ekle</Heading>
+        <PhotoMeal ready={ready} onSave={(mealName, foods) => {
+          const { calories: estimatedCalories, proteinGrams } = mealTotals(foods);
+          update((current) => addMeal(current, mealName, estimatedCalories, { proteinGrams, foods }));
+          setOffset(0);
+        }} />
       </Card>
       <Card>
         <Heading>Bugüne öğün ekle</Heading>
