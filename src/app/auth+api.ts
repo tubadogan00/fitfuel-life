@@ -18,7 +18,7 @@ async function sendResetCode(email: string) {
   const from = process.env.FITFUEL_RESET_FROM_EMAIL;
   if (!key || !from) return reply({ error: 'Şifre sıfırlama e-postası için sunucu ayarları gerekli.' }, 503);
 
-  const reset = issueResetCode(email);
+  const reset = await issueResetCode(email);
   if (reset) {
     try {
       const sent = await fetch('https://api.resend.com/emails', {
@@ -34,19 +34,19 @@ async function sendResetCode(email: string) {
       });
       if (!sent.ok) {
         console.warn(`FitFuel şifre sıfırlama e-postası gönderilemedi (HTTP ${sent.status}).`);
-        cancelResetCode(reset.accountId, reset.code);
+        await cancelResetCode(reset.accountId, reset.code);
       }
     } catch {
       console.warn('FitFuel şifre sıfırlama e-posta servisine bağlanamadı.');
-      cancelResetCode(reset.accountId, reset.code);
+      await cancelResetCode(reset.accountId, reset.code);
     }
   }
   return reply({ ok: true }, 202);
 }
 
-export function GET(request: Request) {
+export async function GET(request: Request) {
   try {
-    const account = sessionAccount(request);
+    const account = await sessionAccount(request);
     return account ? reply({ account }) : reply({ account: null }, 401);
   } catch {
     return reply({ error: 'Oturum kontrol edilemedi. Tekrar dene.' }, 503);
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
 
   if (form.action === 'sign-out') {
     try {
-      endSession(request);
+      await endSession(request);
       return reply({ ok: true }, 200, sessionCookie(request, '', 0));
     } catch {
       return reply({ error: 'Oturum kapatılamadı. Tekrar dene.' }, 503);
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
         : reply({ error: 'E-posta veya şifre yanlış.' }, 401);
     }
     const account = { id: found.id, email: found.email };
-    const token = createSession(account.id, 'passwordHash' in found ? found.passwordHash : undefined);
+    const token = await createSession(account.id, 'passwordHash' in found ? found.passwordHash : undefined);
     if (!token) return reply({ error: 'E-posta veya şifre yanlış.' }, 401);
     if (request.headers.get('X-FitFuel-Client') === 'native') return reply({ account, token });
     return reply({ account }, 200, sessionCookie(request, token, sessionLifetimeSeconds));

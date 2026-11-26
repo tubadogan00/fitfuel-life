@@ -7,6 +7,9 @@ export type AuthAction = 'sign-in' | 'sign-up';
 
 type AuthSession = {
   account: Account | null;
+  guest: boolean;
+  enterGuest: () => void;
+  leaveGuest: () => void;
   loading: boolean;
   loadError: string;
   retry: () => void;
@@ -58,6 +61,7 @@ export async function submitPasswordReset(email: string, reset?: { code: string;
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [account, setAccount] = useState<Account | null>(null);
+  const [guest, setGuest] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [attempt, setAttempt] = useState(0);
@@ -119,7 +123,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }
 
-  return <AuthContext.Provider value={{ account, loading, loadError, retry, authenticate, signOut }}>
+  return <AuthContext.Provider value={{
+    account, guest, loading, loadError, retry, authenticate, signOut,
+    enterGuest: () => { setLoadError(''); setGuest(true); },
+    leaveGuest: () => setGuest(false),
+  }}>
     {children}
   </AuthContext.Provider>;
 }

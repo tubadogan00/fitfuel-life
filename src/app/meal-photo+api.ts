@@ -66,7 +66,7 @@ async function readPhoto(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    if (!sessionAccount(request)) return failure(401, 'Fotoğraf analizi için hesabına tekrar giriş yap.');
+    if (!(await sessionAccount(request))) return failure(401, 'Fotoğraf analizi için hesabına tekrar giriş yap.');
   } catch {
     return failure(503, 'Oturum kontrol edilemedi. Tekrar dene.');
   }

@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
 import { useAuth } from '@/components/auth-session';
-import { JournalProvider } from '@/components/journal';
+import { GuestJournalProvider, JournalProvider } from '@/components/journal';
 import { colors } from '@/components/fitness-ui';
 
 const tabs = [
@@ -12,11 +12,10 @@ const tabs = [
 ];
 
 export default function Layout() {
-  const { account } = useAuth();
-  if (!account) return null;
+  const { account, guest } = useAuth();
+  if (!account && !guest) return null;
 
-  return (
-    <JournalProvider key={account.id} accountId={account.id}>
+  const navigation = (
       <Tabs screenOptions={{
         headerShown: false,
         tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.line },
@@ -30,6 +29,8 @@ export default function Layout() {
           }} />
         ))}
       </Tabs>
-    </JournalProvider>
   );
+  return account
+    ? <JournalProvider key={account.id} accountId={account.id}>{navigation}</JournalProvider>
+    : <GuestJournalProvider>{navigation}</GuestJournalProvider>;
 }

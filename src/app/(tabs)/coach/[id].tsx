@@ -1,5 +1,7 @@
 import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
+import { AccountRequired } from '@/components/account-required';
+import { useAuth } from '@/components/auth-session';
 import { ExerciseAnimation } from '@/components/exercise-animation';
 import { Action, Card, Copy, Heading, Screen } from '@/components/fitness-ui';
 import { dateKey, useJournal } from '@/components/journal';
@@ -12,6 +14,7 @@ function backToWorkouts() {
 
 export default function WorkoutDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { account } = useAuth();
   const { journal, ready, update, error, reload } = useJournal();
   const [playing, setPlaying] = useState<number | null>(null);
   const focused = useIsFocused();
@@ -58,9 +61,9 @@ export default function WorkoutDetail() {
         );
       })}
       {completed && <Copy>Bugün tamamlandı</Copy>}
-      <Action secondary={completed} disabled={!ready}
+      {account ? <Action secondary={completed} disabled={!ready}
         title={completed ? 'Tamamlamayı geri al' : 'Tamamlandı olarak işaretle'}
-        onPress={() => toggleWorkout(workout.id)} />
+        onPress={() => toggleWorkout(workout.id)} /> : <AccountRequired action="Tamamlandı olarak işaretle" />}
     </Screen>
   );
 }

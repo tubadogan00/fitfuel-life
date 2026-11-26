@@ -29,6 +29,12 @@ You can start developing by editing the files inside the **src/app** directory. 
 
 Giriş ve kayıt işlemleri için Expo sunucusunu Node.js 24 ile çalıştır. Geliştirme hesapları sunucuda `.fitfuel/accounts.sqlite` dosyasına, öğün ve antrenman kayıtları ise ilgili hesap adına cihazda kaydedilir. Uygulamayı giriş eklenmeden önce kullandıysan bu cihazdaki eski günlük, ilk açılan hesaba aktarılır.
 
+### Supabase ile cihazlar arası eşitleme
+
+Supabase Session pooler bağlantısını `.env.local` dosyasında `DATABASE_URL` olarak sakla. Database Settings sayfasındaki SSL Configuration bölümünden indirilen CA sertifikasını `.fitfuel/supabase-ca.crt` olarak yerleştir. Sunucuya başka bir konumdan sertifika vermek için `FITFUEL_DB_CA_FILE` kullanabilirsin.
+
+Bağlantı doğrulandıktan sonra `FITFUEL_CLOUD_ENABLED=true` ayarıyla Expo’yu yeniden başlat. İlk bulut bağlantısı mevcut SQLite hesaplarının kimliklerini, şifre özetlerini ve süresi dolmamış oturumlarını PostgreSQL’e kopyalar. Eski günlükler, ilgili hesapla kayıtların tutulduğu cihazda uygulama açıldığında eşitlenir. Diğer cihazlar aynı Expo API sunucusuna bağlanmalıdır. Geliştirme ağı dışında kullanım için API’yi HTTPS üzerinden barındır.
+
 ### Şifre sıfırlama e-postası
 
 Resend’de bir gönderici alan adını doğrula ve gönderme yetkisi olan bir API anahtarı oluştur. Proje kökündeki `.env.local` dosyasına aşağıdaki değerleri ekle ve Expo sunucusunu yeniden başlat.

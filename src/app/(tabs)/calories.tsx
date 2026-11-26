@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { AccountRequired } from '@/components/account-required';
+import { useAuth } from '@/components/auth-session';
 import { Action, Card, Copy, Field, Heading, Screen } from '@/components/fitness-ui';
 import { addMeal, dateKey, useJournal } from '@/components/journal';
 import { PhotoMeal } from '@/components/photo-meal';
@@ -10,6 +12,7 @@ function positiveInteger(value: string) {
 }
 
 export default function Calories() {
+  const { account } = useAuth();
   const { journal, update, ready, error, reload } = useJournal();
   const [name, setName] = useState('');
   const [calories, setCalories] = useState('');
@@ -21,6 +24,16 @@ export default function Calories() {
   const total = meals.reduce((sum, meal) => sum + meal.calories, 0);
   const mealCalories = positiveInteger(calories);
   const dailyGoal = positiveInteger(goal);
+
+  if (!account) {
+    return (
+      <Screen label="BESLENME" title="Kalori günlüğü" subtitle="Öğünlerini ve günlük kalori hedefini hesabında takip et.">
+        <Card><Heading>Günlük hedef</Heading><AccountRequired action="Günlük hedef belirle" /></Card>
+        <Card><Heading>Fotoğrafla öğün ekle</Heading><AccountRequired action="Fotoğrafla ekle" /></Card>
+        <Card><Heading>Bugüne öğün ekle</Heading><AccountRequired action="Öğünü ekle" /></Card>
+      </Screen>
+    );
+  }
 
   return (
     <Screen label="BESLENME" title="Kalori günlüğü" subtitle="Öğünlerini kaydet ve günlük toplamını gör.">

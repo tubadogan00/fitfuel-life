@@ -2,12 +2,15 @@ import { RecipePhoto } from '@/components/recipe-photo';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import { AccountRequired } from '@/components/account-required';
+import { useAuth } from '@/components/auth-session';
 import { Action, Card, Copy, Heading, Screen } from '@/components/fitness-ui';
 import { addMeal, useJournal } from '@/components/journal';
 import { recipes } from '@/constants/recipes';
 
 export default function RecipeDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { account } = useAuth();
   const { ready, update, error, reload } = useJournal();
   const [addedId, setAddedId] = useState('');
   const [photoWidth, setPhotoWidth] = useState(0);
@@ -38,10 +41,10 @@ export default function RecipeDetail() {
         <Copy>{recipe.ingredients}</Copy>
         <Heading>Hazırlık</Heading>
         {recipe.steps.map((step, index) => <Copy key={step}>{index + 1}. {step}</Copy>)}
-        <Action title="1 porsiyonu günlüğe ekle" disabled={!ready} onPress={() => {
+        {account ? <Action title="1 porsiyonu günlüğe ekle" disabled={!ready} onPress={() => {
           update((current) => addMeal(current, recipe.name, recipe.calories));
           setAddedId(recipe.id);
-        }} />
+        }} /> : <AccountRequired action="1 porsiyonu günlüğe ekle" />}
         {addedId === recipe.id && <Copy>Bugünün günlüğüne eklendi.</Copy>}
       </Card>
     </Screen>

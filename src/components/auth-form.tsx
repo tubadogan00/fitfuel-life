@@ -6,7 +6,7 @@ import { Action, Card, Copy, Field, Screen } from '@/components/fitness-ui';
 
 export function AuthForm({ mode }: { mode: AuthAction }) {
   const signUp = mode === 'sign-up';
-  const { authenticate } = useAuth();
+  const { authenticate, enterGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -56,6 +56,7 @@ export function AuthForm({ mode }: { mode: AuthAction }) {
           disabled={busy} onPress={() => router.push('./forgot-password')} />}
         <Action secondary title={signUp ? 'Zaten hesabım var · Giriş yap' : 'Hesap oluştur · Kayıt ol'}
           disabled={busy} onPress={() => router.replace(signUp ? './sign-in' : './sign-up')} />
+        {!signUp && <Action secondary title="Hesap açmadan devam et" disabled={busy} onPress={enterGuest} />}
       </Card>
     </Screen>
   );
