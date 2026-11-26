@@ -8,7 +8,7 @@ export type WeeklyPlan = {
 };
 
 export const weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-const meals = recipes.filter((recipe) => recipe.afterWorkoutMeal);
+const meals = recipes.filter((recipe) => recipe.category === 'main');
 
 export function buildWeek(plan: WeeklyPlan) {
   const programs = weeklyWorkouts[plan.location];
